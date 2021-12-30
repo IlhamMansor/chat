@@ -5,7 +5,7 @@ const WebSocket = require("ws");
 const ejs = require("ejs")
 
 app.set('view engine', 'ejs');
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 5000;
 const server = http.createServer(express);
 const wss = new WebSocket.Server({ server });
 
@@ -17,8 +17,8 @@ app.get('/', (req,res) => {
     res.render('index');
 })
 
-app.listen(5000, () =>{
-    console.log('listening on port 5000');
+app.listen(3000, () =>{
+    console.log('listening on port 3000');
 });
 
 wss.on('connection', function connection(ws) {
