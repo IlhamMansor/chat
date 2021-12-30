@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat room</title>
+</head>
+
+<body>
+    <div id="chat">
+        <div id="chat-messages">
+
+            <form id="chat-form" method="post">
+                <input type="text" name="message" placeholder="Enter a message..." maxlength="500" autocomplete="off">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+
+        <script>
+            var ws_uri = "ws://localhost:8080";
+            var websocket = new WebSocket(ws_uri);
+            websocket.binaryType = "blob";
+
+            function MessageAdd(message) {
+                var chat_messages = document.getElementById("chat-messages");
+
+                chat_messages.insertAdjacentHTML("beforeend", message);
+                chat_messages.scrollTop = chat_messages.scrollHeight;
+            }
+
+            // on websocket open:
+            websocket.onopen = function (event) {
+                MessageAdd('<div class="message green">You have entered the chat room.</div>');
+            };
+
+            // on websocket close:
+            websocket.onclose = function (event) {
+                MessageAdd('<div class="message blue">You have been disconnected.</div>');
+            };
+
+            // on websocket error:
+            websocket.onerror = function (event) {
+                MessageAdd('<div class="message red">Connection to chat failed.</div>');
+            };
+
+            websocket.onmessage = (event) => {
+                if (event.data instanceof Blob) {
+                    const reader = new FileReader();
+                    reader.addEventListener('loadend', () => {
+                        var data = (JSON.parse(reader.result));
+
+                        if (data.type == "message") {
+                            MessageAdd('<div class="message">' + data.username + ': ' + data.message + '</div>');
+                        }
+                    });
+                    reader.readAsText(event.data);
+                }
+            }
+
+            document.getElementById("chat-form").addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                var message_element = document.querySelector('input');
+                var message = message_element.value;
+
+                if (message.toString().length) {
+                    var username = localStorage.getItem("username");
+
+                    var data = {
+                        type: "message",
+                        username: username,
+                        message: message
+                    };
+
+                    websocket.send(JSON.stringify(data));
+                    message_element.value = "";
+                }
+            }, false);
+
+            function Username() {
+                var username = window.prompt("Enter your username:", "");
+
+                if (username.toString().length > 2) {
+                    localStorage.setItem("username", username);
+                }
+                else {
+                    alert("Your username must be at least two characters.");
+                    Username();
+                }
+            }
+
+            Username();
+        </script>
+</body>
+
+</html>
