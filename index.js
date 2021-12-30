@@ -13,13 +13,13 @@ server.listen(port, function() {
     console.log(`listening on ${port}`);
 })
 
-app.get('/', (req,res) => {
-    res.render('index');
-})
+// app.get('/', (req,res) => {
+//     res.render('index');
+// })
 
-app.listen(3000, () =>{
-    console.log('listening on port 3000');
-});
+// app.listen(3000, () =>{
+//     console.log('listening on port 3000');
+// });
 
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(data) {
